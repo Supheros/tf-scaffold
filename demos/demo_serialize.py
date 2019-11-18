@@ -49,7 +49,7 @@ def test_load_part():
 
 def main():
     # test_save_all()
-    tf.reset_default_graph()
+    # tf.reset_default_graph()
     # test_load_all()
     test_save_part()
     tf.reset_default_graph()
