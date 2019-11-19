@@ -17,7 +17,7 @@ def test_save_all():
     build_graph(3, 5)
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        saver.save(sess, './save_all', 0)
+        saver.save(sess, './save', 0)
 
 
 def test_save_part():
@@ -25,14 +25,19 @@ def test_save_part():
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         # saver.save(sess, './save_part', 0, var_list=[v1])
-        saver.save(sess, './save_part', 0, tensor_name_list=['v1:0'])
+        saver.save(sess, './save', 0, tensor_name_list=['v1:0'])
 
+def test_save_tensor_name_exclude(tensor_name_exclude):
+    build_graph(3, 5)
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        saver.save(sess, './save', 0, tensor_name_exclude=tensor_name_exclude)
 
 def test_load_all():
     output, v1, v2 = build_graph(1, 1)
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        saver.load_data(sess, './save_all')
+        saver.load_data(sess, './save-0')
         print(sess.run(output))
 
 
@@ -41,18 +46,28 @@ def test_load_part():
     v2 = tf.Variable([[30, 30, 30], [40, 40, 40]], dtype=tf.float32, name='v2')
     output = tf.add(1 * v1, 1 * v2, name='add')
     with tf.Session() as sess:
+        # 1. Do not need to run initializer if load all tensors.
         sess.run(tf.global_variables_initializer())
-        # saver.load_data(sess, './save_part-0', var_list=[v1])
-        saver.load_data(sess, './save_part-0', tensor_name_list=['v1:0'])
+        saver.load_data(sess, './save-0', var_list=[v2])
+
+        # 2. Initialize all tensors and load part.
+        # sess.run(tf.global_variables_initializer())
+        # saver.load_data(sess, './save_all-0', var_list=[v1])
+
+        # 3. Initialize all tensors and load part.
+        # sess.run(tf.global_variables_initializer())
+        # saver.load_data(sess, './save_all-0', tensor_name_list=['v2:0'])
         print(sess.run(output))
 
 
 def main():
-    # test_save_all()
-    # tf.reset_default_graph()
-    # test_load_all()
-    test_save_part()
+    test_save_all()
+    # test_save_part()
+    # test_save_tensor_name_exclude('v1')
+
     tf.reset_default_graph()
+
+    # test_save_part()
     test_load_part()
 
 
