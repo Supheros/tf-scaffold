@@ -23,3 +23,9 @@ with tf.Session() as sess:
 
     for v in tf.trainable_variables():
         print(v, type(v), v.name, v.op.name)
+
+    # l1 = tf.get_default_graph().get_operations()
+    # print(type(l1))
+    # print(len(l1))
+    # print(l1)
+    # print(sess.run(tf.get_default_graph().get_tensor_by_name('v1/initial_value:0')))
