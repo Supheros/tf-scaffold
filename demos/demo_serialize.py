@@ -14,7 +14,7 @@ def build_graph(alpha, beta):
 
 
 def test_save_all():
-    build_graph(3, 5)
+    build_graph(1, 1)
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver.save(sess, './save', 0)
@@ -89,10 +89,11 @@ def test_load_tensor_name_matcher(tensor_name_matcher):
         saver.load_data(sess, ckpt_path='./', tensor_name_matcher=tensor_name_matcher)
         print(sess.run(output))
 
-def load_struct():
+def test_load_struct_and_data(tensot_name):
     with tf.Session() as sess:
-        s = saver.load_data(sess, ckpt_path='./')
-        print(sess.run(output))
+        saver.load_struct_and_data(sess, meta_path='./save-0.meta', ckpt_path='./')
+        t = tf.get_default_graph().get_tensor_by_name(tensot_name)
+        print(sess.run(t))
 
 def main():
     test_save_all()
@@ -104,8 +105,8 @@ def main():
     # test_load_all()
     # test_load_part()
     # test_load_tensor_name_exclude('v2')
-    test_load_tensor_name_matcher('v1')
-
+    # test_load_tensor_name_matcher('v1')
+    test_load_struct_and_data('add:0')
 
 if __name__ == '__main__':
     main()
