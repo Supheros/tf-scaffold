@@ -11,14 +11,17 @@ def save(sess, dir_path, global_step, var_list=None, tensor_name_list=None, tens
     saver.save(sess, dir_path, global_step)
 
 
-def load_data(sess, dir_path, var_list=None, tensor_name_list=None, tensor_name_exclude=None,
+def load_data(sess, dir_path=None, ckpt_path=None, var_list=None, tensor_name_list=None, tensor_name_exclude=None,
               tensor_name_matcher=None):
     '''
     Restore all or some tensors but not graph structure.
     .index file is not needed.
     '''
+    assert dir_path is not None or ckpt_path is not None, 'dir_path and ckpt_path cat not be None at the same time.'
     saver = build_saver(var_list=var_list, tensor_name_list=tensor_name_list, tensor_name_exclude=tensor_name_exclude,
                         tensor_name_matcher=tensor_name_matcher)
+    if ckpt_path is not None:
+        dir_path = tf.train.latest_checkpoint(ckpt_path)
     saver.restore(sess, dir_path)
 
 
@@ -47,5 +50,10 @@ def build_saver(var_list=None, tensor_name_list=None, tensor_name_exclude=None, 
     return saver
 
 
-def load_struct():
-    pass
+def load_struct_and_data(meta_path, ckpt_path=None):
+    '''
+
+    '''
+    saver = tf.train.import_meta_graph(meta_path)
+
+    return saver

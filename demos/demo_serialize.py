@@ -33,16 +33,28 @@ def test_save_tensor_name_exclude(tensor_name_exclude):
         sess.run(tf.global_variables_initializer())
         saver.save(sess, './save', 0, tensor_name_exclude=tensor_name_exclude)
 
+def test_save_tensor_name_matcher(tensor_name_matcher):
+    build_graph(3, 5)
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        saver.save(sess, './save', 0, tensor_name_matcher=tensor_name_matcher)
+
 def test_load_all():
     output, v1, v2 = build_graph(1, 1)
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        saver.load_data(sess, './save-0')
+        # 1. method 1: Give the model name and the step.
+        # saver.load_data(sess, './save-0')
+        saver.load_data(sess, ckpt_path='./')
+
+        # 2. method 2: Give the path that contains the 'checkpoint'.
+        # latest_model = tf.train.latest_checkpoint('./')
+        # saver.load_data(sess, latest_model)
         print(sess.run(output))
 
 
 def test_load_part():
-    v1 = tf.Variable([[10, 10, 10], [20, 20, 20]], dtype=tf.float32, name='v1')  # change value but restored
+    v1 = tf.Variable([[10, 10, 10], [20, 20, 20]], dtype=tf.float32, name='v1')
     v2 = tf.Variable([[30, 30, 30], [40, 40, 40]], dtype=tf.float32, name='v2')
     output = tf.add(1 * v1, 1 * v2, name='add')
     with tf.Session() as sess:
@@ -59,6 +71,28 @@ def test_load_part():
         # saver.load_data(sess, './save_all-0', tensor_name_list=['v2:0'])
         print(sess.run(output))
 
+def test_load_tensor_name_exclude(tensor_name_exclude):
+    v1 = tf.Variable([[10, 10, 10], [20, 20, 20]], dtype=tf.float32, name='v1')
+    v2 = tf.Variable([[30, 30, 30], [40, 40, 40]], dtype=tf.float32, name='v2')
+    output = tf.add(1 * v1, 1 * v2, name='add')
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        saver.load_data(sess, './save-0', tensor_name_exclude=tensor_name_exclude)
+        print(sess.run(output))
+
+def test_load_tensor_name_matcher(tensor_name_matcher):
+    v1 = tf.Variable([[10, 10, 10], [20, 20, 20]], dtype=tf.float32, name='v1')
+    v2 = tf.Variable([[30, 30, 30], [40, 40, 40]], dtype=tf.float32, name='v2')
+    output = tf.add(1 * v1, 1 * v2, name='add')
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        saver.load_data(sess, ckpt_path='./', tensor_name_matcher=tensor_name_matcher)
+        print(sess.run(output))
+
+def load_struct():
+    with tf.Session() as sess:
+        s = saver.load_data(sess, ckpt_path='./')
+        print(sess.run(output))
 
 def main():
     test_save_all()
@@ -67,8 +101,10 @@ def main():
 
     tf.reset_default_graph()
 
-    # test_save_part()
-    test_load_part()
+    # test_load_all()
+    # test_load_part()
+    # test_load_tensor_name_exclude('v2')
+    test_load_tensor_name_matcher('v1')
 
 
 if __name__ == '__main__':
